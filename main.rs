@@ -4,6 +4,8 @@ use std::io::Read;
 use std::env;
 use std::char;
 use std::error::Error;
+use std::io::{stdin,stdout,Write};
+
 const SIZE: usize = 30000;
 
 struct Env {
@@ -39,18 +41,23 @@ fn main() {
             '+' => stack.data[stack.ptr] += 1,
             '-' => stack.data[stack.ptr] -= 1,
             '.' => print!("{}", stack.data[stack.ptr] as char),
-/*            ',' => {
-                let byte:u8 = match io::stdin().bytes().next() {
-                    Some(v) => {
-                        match v {
-                            Err(why) => panic!("what's happening with {}", why.description()),
-                            Ok(v) => v
-                        }
-                    }
-                    None => 0
-                };
-                stack.data[stack.ptr] = byte;
-            },*/
+            ',' => {
+                let mut input=String::new();
+                let _=stdout().flush();
+                stdin().read_line(&mut input).expect("Did not enter a correct string");
+                if let Some('\n')=input.chars().next_back() {
+                    input.pop();
+                }
+                if let Some('\r')=input.chars().next_back() {
+                    input.pop();
+                }
+                if input.len() != 0 {
+                    let ch = input.chars().next().unwrap();
+                    stack.data[stack.ptr] = ch as u8;
+                } else {
+                    stack.data[stack.ptr] = 0;
+                }
+            },
             '[' => {
                 if stack.data[stack.ptr] != 0 {
                     block_start.push(read_pos);
@@ -80,6 +87,5 @@ fn main() {
             _ => ()
         }
         read_pos += 1;
-//        println!("now at {} : {}", read_pos, char_vec[read_pos]);
     }
 }
